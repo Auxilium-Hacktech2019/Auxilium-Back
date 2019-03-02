@@ -7,7 +7,8 @@ from flask_restplus import reqparse
 from sqlalchemy import Column, Integer, String
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/goldrushdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/goldrushdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://goldrush:goldrush@127.0.0.1/goldrushdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 db = SQLAlchemy(app)
@@ -25,6 +26,12 @@ aider_info = api.model('Aider', {
     'patient_position': fields.String
 })
 
+aider_create_params = api.model('Aider Create Params', {
+    'name': fields.String(required=True, description='Aider Name'),
+    'longitude': fields.String,
+    'latitude': fields.String
+})
+
 
 @api.route('/schedule')
 class ScheduleAider(Resource):
@@ -36,6 +43,29 @@ class ScheduleAider(Resource):
         longitude = args.get('longitude')
         latitude = args.get('latitude')
         return AiderModuleOp.schedule(longitude, latitude)
+
+
+@api.route('/', strict_slashes=False)
+class TenantCollection(Resource):
+    @api.doc(description='Create a tenant')
+    @api.expect(aider_create_params)
+    def post(self):
+        params = request.json
+        name = params.get('name')
+        longitude = params.get('longitude', '')
+        latitude = params.get('latitude', '')
+        AiderModuleOp.create(name, longitude, latitude)
+
+
+@api.route('/<aider_name>')
+class Tenant(Resource):
+    @api.doc(description='Get a tenant by name')
+    @api.marshal_with(aider_info)
+    def get(self, aider_name):
+        aider = AiderModuleOp.get_aider(aider_name)
+        if aider is None:
+            raise Exception("No Found")
+        return aider
 
 
 class Aider(db.Model):
@@ -65,14 +95,28 @@ class AiderModuleOp(object):
 
         return AiderDAO.update_patient_position(target_airder, (longitude, latitude))
 
+    @classmethod
+    def create(cls, name, longitude, latitude):
+        aider = Aider(name=name, longitude=longitude, latitude=latitude)
+        db.session.add(aider)
+        db.session.commit()
+
+    @classmethod
+    def get_aider(cls, name):
+        return AiderDAO.get(name)
+
 
 class AiderDAO:
     @classmethod
-    def get(cls):
-        return db.session.query(Aider).all()
+    def get(cls, name=None):
+        if name is None:
+            return db.session.query(Aider).all()
+        return Aider.query.filter_by(name=name).first()
 
     @classmethod
     def update_patient_position(cls, aider, patient_position):
+        if aider is None:
+            raise Exception("Not Found")
         aider = db.session.query(Aider).filter_by(id=aider.id).first()
         aider.patient_position = patient_position[0] + ',' + patient_position[1]
         db.session.commit()
@@ -80,4 +124,4 @@ class AiderDAO:
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
