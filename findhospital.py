@@ -4,12 +4,11 @@ import json
 
 
 
-class CallUber:
+class FindHospital:
     def __init__(self, locationString):
         self.localLocationString = locationString
 
     def find_hospital(self):
-        hospitalGeoPoint = []
         googleKey = 'AIzaSyBqPCGw7u3KY1ycZ8MpB7o5rCXIltzF7r8'
         ssl._create_default_https_context = ssl._create_unverified_context # dirty hack
         url = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key=' \
@@ -30,5 +29,5 @@ class CallUber:
         return lat, lng
 
 if __name__ == '__main__':
-    cu = CallUber("37.775232,-122.4197513")
-    print(cu.find_hospital())
+    fh = FindHospital("37.775232,-122.4197513")
+    print(fh.find_hospital())
