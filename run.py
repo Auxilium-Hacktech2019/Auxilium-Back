@@ -63,7 +63,7 @@ class AiderCreate(Resource):
 
 @api.route('/<aider_name>')
 class Aider(Resource):
-    @api.doc(description='Get a tenant by name')
+    @api.doc(description='Get an aider by name')
     @api.marshal_with(aider_info)
     def get(self, aider_name):
         aider = AiderModuleOp.get_aider(aider_name)
@@ -80,8 +80,9 @@ class AiderAidOver(Resource):
     def post(self):
         params = request.json
         name = params.get('name')
-        airder = AiderModuleOp.get_aider(name)
-        AiderDAO.update_patient_position(airder)
+        aider = AiderModuleOp.get_aider(name)
+        AiderDAO.update_patient_position(aider)
+        return aider
 
 
 class Aider(db.Model):
@@ -109,6 +110,11 @@ class AiderModuleOp(object):
                 target_airder = aider
                 min_distance = tmp_dis
 
+        from aider import operators
+        fh = operators.FindHospital(latitude + "," + longitude)  # find hospital
+        hos_latitude, hos_longitude = fh.find_hospital()
+        fare_id = operators.get_fare_id(longitude, latitude, hos_longitude, hos_latitude)
+        operators.request_ride(fare_id)  # schedule uber
         return AiderDAO.update_patient_position(target_airder, (longitude, latitude))
 
     @classmethod
@@ -143,5 +149,5 @@ class AiderDAO:
 
 
 if __name__ == '__main__':
+    # app.run(debug=False, host='127.0.0.1')
     app.run(debug=False, host='0.0.0.0')
-    #app.run(debug=False)
