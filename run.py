@@ -32,6 +32,10 @@ aider_create_params = api.model('Aider Create Params', {
     'latitude': fields.String
 })
 
+aider_aid_over_params = api.model('Aider Aids Over Params',{
+    'name': fields.String
+})
+
 
 @api.route('/schedule')
 class ScheduleAider(Resource):
@@ -46,7 +50,7 @@ class ScheduleAider(Resource):
 
 
 @api.route('/', strict_slashes=False)
-class CreateAider(Resource):
+class AiderCreate(Resource):
     @api.doc(description='Create a aider')
     @api.expect(aider_create_params)
     def post(self):
@@ -58,7 +62,7 @@ class CreateAider(Resource):
 
 
 @api.route('/<aider_name>')
-class Tenant(Resource):
+class Aider(Resource):
     @api.doc(description='Get a tenant by name')
     @api.marshal_with(aider_info)
     def get(self, aider_name):
@@ -66,6 +70,18 @@ class Tenant(Resource):
         if aider is None:
             raise Exception("No Found")
         return aider
+
+
+@api.route('/update_patient', strict_slashes=False)
+class AiderAidOver(Resource):
+    @api.doc(description='Aid Over')
+    @api.expect(aider_aid_over_params)
+    @api.marshal_with(aider_info)
+    def post(self):
+        params = request.json
+        name = params.get('name')
+        airder = AiderModuleOp.get_aider(name)
+        AiderDAO.update_patient_position(airder)
 
 
 class Aider(db.Model):
@@ -114,14 +130,18 @@ class AiderDAO:
         return Aider.query.filter_by(name=name).first()
 
     @classmethod
-    def update_patient_position(cls, aider, patient_position):
+    def update_patient_position(cls, aider, patient_position=None):
         if aider is None:
             raise Exception("Not Found")
         aider = db.session.query(Aider).filter_by(id=aider.id).first()
-        aider.patient_position = patient_position[0] + ',' + patient_position[1]
+        if patient_position is None or len(patient_position) == 0:
+            aider.patient_position = None
+        else:
+            aider.patient_position = patient_position[0] + ',' + patient_position[1]
         db.session.commit()
         return aider
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    # app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True)

@@ -28,6 +28,7 @@ class FindHospital:
             lng = obj['result']['geometry']['location']['lng']
         return lat, lng
 
+
 if __name__ == '__main__':
     fh = FindHospital("37.775232,-122.4197513")
     print(fh.find_hospital())
