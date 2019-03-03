@@ -1,8 +1,23 @@
-# from urllib import requests
-#
-#
-# def getHospitals(longitude, latitude):
-#     url = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?" \
-#           "key=AIzaSyBqPCGw7u3KY1ycZ8MpB7o5rCXIltzF7r8&input=hospital&inputtype=textquery&" \
-#           "locationbias=point:37.775232,-122.4197513"
-#     requests.post(url=self.deploy_cluster_url, headers=headers, data=json.dumps(deploying_cluster))
+import urllib.request
+
+
+def getFareId(start_longitude, start_latitude, end_longitude, end_latitude):
+
+    raw_data = {
+        'Authorization': 'Bearer JA.VUNmGAAAAAAAEgASAAAABwAIAAwAAAAAAAAAEgAAAAAAAAG8AAAAFAAAAAAADgAQAAQAAAAIAAwAAAAOAAAAkAAAABwAAAAEAAAAEAAAAF4n4Ev1XX_06M7h07GUkGVsAAAAalJyiAOkLpJ4ukBu03sdRF5C3MYnotMBvYI5uJ4O8QtcfQJUdZPXuIAsI-VTNextrwkGAqegQTv2xho1JP3ctPR8q1a3ckIHrukIzJLfjStUYIxHj9eFmmMF4Sf7bZawoQ8BCaXSw54dc25fDAAAAJzyOofz3Fxt4FQ6RCQAAABiMGQ4NTgwMy0zOGEwLTQyYjMtODA2ZS03YTRjZjhlMTk2ZWU',
+        'Content-Type': 'application/json',
+        'product_id': '57c0ff4e-1493-4ef9-a4df-6b961525cf92',
+        'start_latitude': start_latitude,
+        'start_longitude': start_longitude,
+        'end_latitude': end_latitude,
+        'end_longitude': end_longitude,
+        'seat_count': '2'
+    }
+    # data = urllib.parse.urlencode(raw_data).encode()
+    url = "https://api.uber.com/v1.2/requests/estimate"
+    req = urllib.request.Request(url, data=raw_data)  # this will make the method "POST"
+    resp = urllib.request.urlopen(req)
+    print(resp)
+
+
+getFareId(34.146837, -118.124278, 34.1559884, -118.1147177)

@@ -7,8 +7,8 @@ from flask_restplus import reqparse
 from sqlalchemy import Column, Integer, String
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/goldrushdb'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://goldrush:goldrush@127.0.0.1/goldrushdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/goldrushdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://goldrush:goldrush@127.0.0.1/goldrushdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 db = SQLAlchemy(app)
@@ -46,8 +46,8 @@ class ScheduleAider(Resource):
 
 
 @api.route('/', strict_slashes=False)
-class TenantCollection(Resource):
-    @api.doc(description='Create a tenant')
+class CreateAider(Resource):
+    @api.doc(description='Create a aider')
     @api.expect(aider_create_params)
     def post(self):
         params = request.json
@@ -88,7 +88,7 @@ class AiderModuleOp(object):
         aiders = AiderDAO.get()
         target_airder, min_distance = None, sys.float_info.max
         for aider in aiders:
-            tmp_dis = distance.great_circle((aider.longitude, aider.latitude), (longitude, latitude)).miles
+            tmp_dis = distance.great_circle((aider.latitude, aider.longitude), (latitude, longitude)).miles
             if tmp_dis < min_distance:
                 target_airder = aider
                 min_distance = tmp_dis
@@ -124,4 +124,4 @@ class AiderDAO:
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True)
