@@ -7,8 +7,8 @@ from flask_restplus import reqparse
 from sqlalchemy import Column, Integer, String
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/goldrushdb'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://goldrush:goldrush@127.0.0.1/goldrushdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1/goldrushdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://goldrush:goldrush@127.0.0.1/goldrushdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
 db = SQLAlchemy(app)
@@ -124,4 +124,4 @@ class AiderDAO:
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
